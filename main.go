@@ -19,6 +19,7 @@ var (
 	clearSchemesFlag   = kingpin.Flag("clear-templates", "Delete local scheme caches").Bool()
 	clearTemplatesFlag = kingpin.Flag("clear-schemes", "Delete local template caches").Bool()
 	configFileFlag     = kingpin.Flag("config", "Specify configuration file to use").Default(filepath.Join(xdgdir.Config.Path(),"base16-universal-manager/config.yaml")).String()
+	schemeFlag         = kingpin.Flag("scheme", "Override scheme from config file").Default("").String()
 )
 
 //Configuration
@@ -49,7 +50,13 @@ func main() {
 		templateList.UpdateTemplates()
 	}
 
-	scheme := schemeList.Find(appConf.Colorscheme)
+  schemename := appConf.Colorscheme
+
+  if *schemeFlag != "" {
+    schemename = *schemeFlag
+  }
+
+	scheme := schemeList.Find(schemename)
 	fmt.Println("[CONFIG]: Selected scheme: ", scheme.Name)
 
 	for k := range appConf.Applications {
@@ -69,7 +76,7 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 
 	fmt.Println("[RENDER]: Rendering template \"" + templ.Name + "\"")
 
-	for k, v := range templ.Files {
+  for k, v := range templ.Files {
 		templFileData, err := DownloadFileToStirng(templ.RawBaseURL + "templates/" + k + ".mustache")
 		check(err)
 		configPath := appConf.Applications[templ.Name].Files[k]
