@@ -37,10 +37,8 @@ func main() {
 	//TODO delete caches, if user wants to
 
 	//Create cache paths, if missing
-	p1 := filepath.Join(".", appConf.SchemesCachePath)
-	os.MkdirAll(p1, os.ModePerm)
-	p2 := filepath.Join(".", appConf.TemplatesCachePath)
-	os.MkdirAll(p2, os.ModePerm)
+	os.MkdirAll(appConf.SchemesCachePath, os.ModePerm)
+	os.MkdirAll(appConf.TemplatesCachePath, os.ModePerm)
 
 	schemeList := LoadBase16ColorschemeList()
 	templateList := LoadBase16TemplateList()
