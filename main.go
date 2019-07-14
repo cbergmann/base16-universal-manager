@@ -71,14 +71,13 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 	for k, v := range templ.Files {
 		templFileData, err := DownloadFileToStirng(templ.RawBaseURL + "templates/" + k + ".mustache")
 		check(err)
-		renderedFile := mustache.Render(templFileData, scheme.MustacheContext())
-
 		configPath := appConf.Applications[templ.Name].Files[k]
-
     if configPath == "" {
 			fmt.Println("     - skipping file because it is not configured: ", k)
       continue
     }
+
+    renderedFile := mustache.Render(templFileData, scheme.MustacheContext())
 
     saveBasePath := configPath + "/"
 		p4 := filepath.Join(".", saveBasePath)
