@@ -80,13 +80,17 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 
     renderedFile := mustache.Render(templFileData, scheme.MustacheContext())
 
-    saveBasePath := configPath + "/"
-		p4 := filepath.Join(".", saveBasePath)
-		os.MkdirAll(p4, os.ModePerm)
-		savePath := saveBasePath + k + v.Extension
+    savePath := filepath.Join(configPath, k + v.Extension)
 
-		//If DryRun is enabled, just print the output location for debugging
-		if appConf.DryRun {
+    if stat, err := os.Stat(configPath); err == nil && ! stat.IsDir() {
+      //if the file exists and is a File write to it directly
+      savePath = configPath
+    }
+
+    os.MkdirAll(filepath.Dir(savePath), os.ModePerm)
+
+    //If DryRun is enabled, just print the output location for debugging
+    if appConf.DryRun {
 			fmt.Println("    - (dryrun) file would be written to: ", savePath)
 		} else {
 			switch appConf.Applications[templ.Name].Mode {
