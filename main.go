@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hoisie/mustache"
 	"gopkg.in/alecthomas/kingpin.v2"
+  "go4.org/xdgdir"
 	"os"
 	"path/filepath"
 )
@@ -17,7 +18,7 @@ var (
 	clearListFlag      = kingpin.Flag("clear-list", "Delete local master list caches").Bool()
 	clearSchemesFlag   = kingpin.Flag("clear-templates", "Delete local scheme caches").Bool()
 	clearTemplatesFlag = kingpin.Flag("clear-schemes", "Delete local template caches").Bool()
-	configFileFlag     = kingpin.Flag("config", "Specify configuration file to use").Default("config.yaml").String()
+	configFileFlag     = kingpin.Flag("config", "Specify configuration file to use").Default(filepath.Join(xdgdir.Config.Path(),"base16-universal-manager/config.yaml")).String()
 )
 
 //Configuration
