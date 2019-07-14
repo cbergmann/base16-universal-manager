@@ -73,7 +73,14 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 		check(err)
 		renderedFile := mustache.Render(templFileData, scheme.MustacheContext())
 
-		saveBasePath := appConf.Applications[templ.Name].Files[k] + "/"
+		configPath := appConf.Applications[templ.Name].Files[k]
+
+    if configPath == "" {
+			fmt.Println("     - skipping file because it is not configured: ", k)
+      continue
+    }
+
+    saveBasePath := configPath + "/"
 		p4 := filepath.Join(".", saveBasePath)
 		os.MkdirAll(p4, os.ModePerm)
 		savePath := saveBasePath + k + v.Extension
