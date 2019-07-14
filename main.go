@@ -58,6 +58,9 @@ func main() {
 	fmt.Println("[CONFIG]: Selected scheme: ", scheme.Name)
 
 	for k := range appConf.Applications {
+    if ! appConf.Applications[k].Enabled {
+      continue
+    }
 
 		schemeList = LoadBase16ColorschemeList()
 		templateList = LoadBase16TemplateList()
@@ -119,6 +122,11 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 	} else {
 		exe_cmd(appConf.Applications[templ.Name].Hook)
 	}
+}
+
+func fileTag(templ Base16Template) {
+//	prefix := appConf.Applications[templ.Name].Prefix
+
 }
 
 //TODO proper error handling
