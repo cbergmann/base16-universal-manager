@@ -22,11 +22,14 @@ applications:
     alacritty:
         # Enable or disable allacritty
         enabled: false
-		# Set mode of operation for creating the config file rewrite/append/replace
-		# rewrite: delete the contents of the output file, write the rendered output to it
-		# append: append the renderend output to the output file
-		# replace: search for a marked block and replace it. Will create a marked block if none is present
-	    mode: rewrite
+		    # Set mode of operation for creating the config file rewrite/append/replace
+		    # rewrite: delete the contents of the output file, write the rendered output to it
+		    # append: append the renderend output to the output file
+		    # replace: search for a marked block and replace it. Will create a marked block if none is present
+	      mode: rewrite
+        # In append and replace mode blocks are marked with tags. These are prepended with this prefix.
+        # It should be a string starting a one line comment in the respective comment file language.
+        comment_prefix: "#"
         # Set a hook to run after rendering the template
         hook: ""
         # Specify where to output the rendered result

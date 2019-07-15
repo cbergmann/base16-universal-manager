@@ -24,7 +24,7 @@ type StetterAppConfig struct {
 	Enabled bool              `yaml:"enabled"`
 	Hook    string            `yaml:"hook"`
 	Mode    string            `yaml:"mode"`
-	Prefix  string            `yaml:"prefix"`
+	Comment_Prefix  string            `yaml:"comment_prefix"`
 	Files   map[string]string `yaml:"files"`
 }
 
@@ -55,9 +55,9 @@ func NewConfig(path string) SetterConfig {
         app.Mode = "rewrite"
         conf.Applications[k] = app
       }
-      if conf.Applications[k].Prefix == "" {
+      if conf.Applications[k].Comment_Prefix == "" {
         app := conf.Applications[k]
-        app.Prefix = "#"
+        app.Comment_Prefix = "#"
         conf.Applications[k] = app
       }
     }
@@ -78,7 +78,7 @@ func (c SetterConfig) Show() {
 		fmt.Println("    Enabled: ", v.Enabled)
     fmt.Println("    Mode: ", v.Mode)
 		fmt.Println("    Hook: ", v.Hook)
-		fmt.Println("    Prefix: ", v.Prefix)
+		fmt.Println("    Comment_Prefix: ", v.Comment_Prefix)
 		for k1, v1 := range v.Files {
 			fmt.Println("      ", k1, "  ", v1)
 		}

@@ -180,11 +180,6 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 	}
 }
 
-func fileTag(templ Base16Template) {
-//	prefix := appConf.Applications[templ.Name].Prefix
-
-}
-
 //TODO proper error handling
 func check(e error) {
 	if e != nil {
@@ -194,5 +189,5 @@ func check(e error) {
 }
 
 func tagline(templ Base16Template, file string, part string) string{
-  return appConf.Applications[templ.Name].Prefix + templ.Name + "-" + file + "-" + part
+  return appConf.Applications[templ.Name].Comment_Prefix + templ.Name + "-" + file + "-" + part
 }
