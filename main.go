@@ -6,6 +6,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
   "go4.org/xdgdir"
 	"os"
+	"bufio"
 	"path/filepath"
 )
 
@@ -74,8 +75,9 @@ func main() {
 }
 
 func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
+  var before, after string
 
-	fmt.Println("[RENDER]: Rendering template \"" + templ.Name + "\"")
+  fmt.Println("[RENDER]: Rendering template \"" + templ.Name + "\"")
 
   for k, v := range templ.Files {
 		templFileData, err := DownloadFileToStirng(templ.RawBaseURL + "templates/" + k + ".mustache")
@@ -97,23 +99,77 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 
     os.MkdirAll(filepath.Dir(savePath), os.ModePerm)
 
+    mode := appConf.Applications[templ.Name].Mode
+
     //If DryRun is enabled, just print the output location for debugging
     if appConf.DryRun {
 			fmt.Println("    - (dryrun) file would be written to: ", savePath)
 		} else {
-			switch appConf.Applications[templ.Name].Mode {
-			case "rewrite":
-				fmt.Println("     - writing: ", savePath)
-				saveFile, err := os.Create(savePath)
-				defer saveFile.Close()
-				check(err)
-				saveFile.Write([]byte(renderedFile))
-				saveFile.Close()
-			case "append":
-				fmt.Println("     - appending to: ", savePath)
-			case "replace":
-				fmt.Println("     - replacing in: ", savePath)
+			fmt.Fprintf(os.Stdout, "     - %ving in: %v\n", mode, savePath)
+
+      start_line := tagline(templ, k, "start")
+      end_line := tagline(templ, k, "end")
+
+      //read file for append and replace mode
+      write_start, write_end := false, false
+			if mode == "append" || mode == "replace" {
+        write_start = true
+
+        file, err := os.Open(savePath)
+        if err != nil {
+		      fmt.Fprintf(os.Stderr, "Could not read file for %v mode: %v\n",mode, err)
+          os.Exit(1)
+        }
+
+        state := "before"
+        scanner := bufio.NewScanner(file)
+        for scanner.Scan() {
+          switch state {
+          case "before":
+            if scanner.Text() == start_line {
+              state = "between"
+            }else{
+              before += scanner.Text() + "\n"
+            }
+          case "between":
+            if scanner.Text() == end_line {
+              state = "after"
+              after = ""
+            } else {
+              after += scanner.Text() + "\n"
+            }
+          case "after":
+            after += scanner.Text() + "\n"
+          }
+        }
+        file.Close()
+
+        //consistency check
+        switch mode {
+        case "replace":
+          if state == "before" {
+            fmt.Fprintf(os.Stderr, "For replace mode you have to add the following as a single line in target file:\n%v", start_line)
+            os.Exit(1)
+          } else if after != "" {
+            write_end = true
+          }
+        case "append":
+          //discard everything after start tag
+          after = ""
+        }
 			}
+
+      //write file out
+      saveFile, err := os.Create(savePath)
+			defer saveFile.Close()
+			check(err)
+			saveFile.Write([]byte(before))
+			if write_start { saveFile.Write([]byte(start_line + "\n")) }
+			saveFile.Write([]byte(renderedFile))
+			if write_end { saveFile.Write([]byte(end_line + "\n")) }
+			saveFile.Write([]byte(after))
+			saveFile.Close()
+
 		}
 	}
 
@@ -135,4 +191,8 @@ func check(e error) {
 		panic(e)
 	}
 
+}
+
+func tagline(templ Base16Template, file string, part string) string{
+  return appConf.Applications[templ.Name].Prefix + templ.Name + "-" + file + "-" + part
 }
