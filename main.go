@@ -105,7 +105,7 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
     if appConf.DryRun {
 			fmt.Println("    - (dryrun) file would be written to: ", savePath)
 		} else {
-			fmt.Fprintf(os.Stdout, "     - %ving in: %v\n", mode, savePath)
+			fmt.Fprintf(os.Stdout, "     - %ving %v in: %v\n", mode, k, savePath)
 
       start_line := tagline(templ, k, "start")
       end_line := tagline(templ, k, "end")
