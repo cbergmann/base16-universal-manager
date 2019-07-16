@@ -38,7 +38,16 @@ func main() {
 	appConf = NewConfig(*configFileFlag)
 
 	// appConf.Show()
-	//TODO delete caches, if user wants to
+
+  if *clearSchemesFlag {
+    fmt.Println("[CONFIG]: Clearing schemes cache")
+    os.RemoveAll(appConf.SchemesCachePath)
+	}
+
+  if *clearTemplatesFlag {
+    fmt.Println("[CONFIG]: Clearing templates cache")
+    os.RemoveAll(appConf.TemplatesCachePath)
+	}
 
 	//Create cache paths, if missing
 	os.MkdirAll(appConf.SchemesCachePath, os.ModePerm)
