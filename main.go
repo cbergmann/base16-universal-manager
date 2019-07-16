@@ -15,12 +15,15 @@ var configFile string
 
 //Flags
 var (
-	updateFlag         = kingpin.Flag("update-list", "Update the list of templates and colorschemes").Bool()
-	clearListFlag      = kingpin.Flag("clear-list", "Delete local master list caches").Bool()
-	clearSchemesFlag   = kingpin.Flag("clear-templates", "Delete local scheme caches").Bool()
-	clearTemplatesFlag = kingpin.Flag("clear-schemes", "Delete local template caches").Bool()
-	configFileFlag     = kingpin.Flag("config", "Specify configuration file to use").Default(filepath.Join(xdgdir.Config.Path(),"base16-universal-manager/config.yaml")).String()
-	schemeFlag         = kingpin.Flag("scheme", "Override scheme from config file").Default("").String()
+	updateFlag            = kingpin.Flag("update-list", "Update the list of templates and colorschemes").Bool()
+	clearListFlag         = kingpin.Flag("clear-list", "Delete local master list caches").Bool()
+	listSchemesFlag       = kingpin.Flag("list-schemes", "List templates and exit").Bool()
+	listTemplatesFlag     = kingpin.Flag("list-templates", "List schemes and exit").Bool()
+	listTemplateFilesFlag = kingpin.Flag("list-templatefiles", "List files for template and exit").Default("").String()
+	clearSchemesFlag      = kingpin.Flag("clear-schemes", "Delete local scheme caches").Bool()
+	clearTemplatesFlag    = kingpin.Flag("clear-template", "Delete local template caches").Bool()
+	configFileFlag        = kingpin.Flag("config", "Specify configuration file to use").Default(filepath.Join(xdgdir.Config.Path(),"base16-universal-manager/config.yaml")).String()
+	schemeFlag            = kingpin.Flag("scheme", "Override scheme from config file").Default("").String()
 )
 
 //Configuration
@@ -41,16 +44,41 @@ func main() {
 	os.MkdirAll(appConf.SchemesCachePath, os.ModePerm)
 	os.MkdirAll(appConf.TemplatesCachePath, os.ModePerm)
 
-	schemeList := LoadBase16ColorschemeList()
+  schemeList := LoadBase16ColorschemeList()
 	templateList := LoadBase16TemplateList()
 
-	if *updateFlag {
+  if *updateFlag {
 		schemeList.UpdateSchemes()
 		templateList.UpdateTemplates()
 	}
 
-  schemename := appConf.Colorscheme
+  listing := false
 
+  if *listSchemesFlag {
+    schemeList.Print()
+    listing = true
+  }
+
+  if *listTemplatesFlag {
+    templateList.Print()
+    listing = true
+  }
+
+  if *listTemplateFilesFlag != "" {
+		templ := templateList.Find(*listTemplateFilesFlag)
+    fmt.Printf("Files for %v:\n",templ.Name)
+    for fk := range templ.Files {
+      fmt.Println("    - ",fk)
+    }
+    listing = true
+  }
+
+  if listing {
+     //exit after listing
+     os.Exit(0)
+  }
+
+  schemename := appConf.Colorscheme
   if *schemeFlag != "" {
     schemename = *schemeFlag
   }
@@ -58,13 +86,13 @@ func main() {
 	scheme := schemeList.Find(schemename)
 	fmt.Println("[CONFIG]: Selected scheme: ", scheme.Name)
 
+  schemeList = LoadBase16ColorschemeList()
+	templateList = LoadBase16TemplateList()
+
 	for k := range appConf.Applications {
     if ! appConf.Applications[k].Enabled {
       continue
     }
-
-		schemeList = LoadBase16ColorschemeList()
-		templateList = LoadBase16TemplateList()
 
 		templ := templateList.Find(k)
 

@@ -202,3 +202,10 @@ func (c *Base16ColorschemeList) Find(input string) Base16Colorscheme {
 	check(err)
 	return scheme
 }
+
+func (c *Base16ColorschemeList) Print() {
+	fmt.Println("The following schemes are available:")
+  for schemeName := range c.colorschemes {
+    fmt.Println("  - ",schemeName)
+	}
+}

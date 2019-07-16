@@ -114,3 +114,10 @@ func (c *Base16TemplateList) Find(input string) Base16Template {
 	templateName := FindMatchInMap(c.templates, input)
 	return c.GetBase16Template(templateName)
 }
+
+func (c *Base16TemplateList) Print() {
+	fmt.Println("The following Templates and files are available:")
+  for templateName := range c.templates {
+    fmt.Println("  -",templateName)
+	}
+}
