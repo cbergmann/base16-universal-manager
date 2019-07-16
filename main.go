@@ -103,11 +103,10 @@ func main() {
 }
 
 func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
-  var before, after string
-
   fmt.Println("[RENDER]: Rendering template \"" + templ.Name + "\"")
 
   for k, v := range templ.Files {
+    var before, after string
 		templFileData, err := DownloadFileToStirng(templ.RawBaseURL + "templates/" + k + ".mustache")
 		check(err)
 		configPath := appConf.Applications[templ.Name].Files[k]
