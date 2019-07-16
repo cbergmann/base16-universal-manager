@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"sort"
 
 	"github.com/agnivade/levenshtein"
 	"gopkg.in/yaml.v2"
@@ -194,4 +195,14 @@ func deepCompareFiles(file1, file2 string) bool {
 	}
 
 	return true
+}
+
+func sortMapKeys(in map[string]string) []string {
+  sortedKeys := make([]string, 0, len(in))
+	for k := range in {
+		sortedKeys = append(sortedKeys, k)
+	}
+	sort.Strings(sortedKeys)
+
+  return sortedKeys
 }

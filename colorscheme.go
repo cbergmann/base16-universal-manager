@@ -205,7 +205,7 @@ func (c *Base16ColorschemeList) Find(input string) Base16Colorscheme {
 
 func (c *Base16ColorschemeList) Print() {
 	fmt.Println("The following schemes are available:")
-  for schemeName := range c.colorschemes {
+  for _, schemeName := range sortMapKeys(c.colorschemes) {
     fmt.Println("  - ",schemeName)
 	}
 }

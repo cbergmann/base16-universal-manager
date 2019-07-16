@@ -117,7 +117,7 @@ func (c *Base16TemplateList) Find(input string) Base16Template {
 
 func (c *Base16TemplateList) Print() {
 	fmt.Println("The following Templates and files are available:")
-  for templateName := range c.templates {
+  for _,templateName := range sortMapKeys(c.templates) {
     fmt.Println("  -",templateName)
 	}
 }
