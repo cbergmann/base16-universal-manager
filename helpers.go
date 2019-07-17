@@ -17,6 +17,7 @@ import (
 
 	"github.com/agnivade/levenshtein"
 	"gopkg.in/yaml.v2"
+  "github.com/riywo/loginshell"
 )
 
 //DownloadFileToStirng downloads a file from a given URL and returns it's
@@ -138,8 +139,10 @@ func exe_cmd(cmd string) {
 	if len(cmd) == 0 {
 		return
 	}
-	fmt.Println("[HOOK]: Running: ", cmd)
-	out, err := exec.Command("sh","-c",cmd).Output()
+  shell, err := loginshell.Shell()
+  if err != nil { panic(err) }
+	fmt.Printf("[HOOK]: Running in shell %v: %v", shell, cmd)
+	out, err := exec.Command(shell,"-c",cmd).Output()
 
 	if err != nil {
 		fmt.Printf("%s\n", err)
