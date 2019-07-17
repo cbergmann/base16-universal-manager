@@ -8,6 +8,7 @@ import (
 	"os"
 	"bufio"
 	"path/filepath"
+	"strings"
 )
 
 // Configuration file
@@ -212,9 +213,15 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 	if appConf.DryRun {
 		fmt.Println("Not running hook, DryRun enabled: ", appConf.Applications[templ.Name].Hook)
 	} else {
-		exe_cmd(appConf.Applications[templ.Name].Hook)
+    //allow string replacement
+    replacer := strings.NewReplacer(
+      "\\{", "{", //mark escaped curly braces
+      "{template}", templ.Name,
+      "{scheme}", scheme.Name,
+    )
+		exe_cmd(replacer.Replace(appConf.Applications[templ.Name].Hook))
     for k:= range(appConf.Applications[templ.Name].Hooks) {
-  		exe_cmd(appConf.Applications[templ.Name].Hooks[k])
+      exe_cmd(replacer.Replace(appConf.Applications[templ.Name].Hooks[k]))
     }
 	}
 }
