@@ -18,6 +18,7 @@ import (
 	"github.com/agnivade/levenshtein"
 	"gopkg.in/yaml.v2"
   "github.com/riywo/loginshell"
+  "github.com/mitchellh/go-homedir"
 )
 
 //DownloadFileToStirng downloads a file from a given URL and returns it's
@@ -203,4 +204,10 @@ func sortMapKeys(in map[string]string) []string {
 	sort.Strings(sortedKeys)
 
   return sortedKeys
+}
+
+func expandPath(path string) string {
+  result,err := homedir.Expand(path)
+	check(err)
+  return result
 }

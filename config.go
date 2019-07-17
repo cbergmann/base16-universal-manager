@@ -49,6 +49,10 @@ func NewConfig(path string) SetterConfig {
 	  check(err)
 	  err = yaml.Unmarshal((file), &conf)
 	  check(err)
+    conf.SchemesListFile = expandPath(conf.SchemesListFile)
+    conf.TemplatesListFile = expandPath(conf.TemplatesListFile)
+    conf.SchemesCachePath = expandPath(conf.SchemesCachePath)
+    conf.TemplatesCachePath = expandPath(conf.TemplatesCachePath)
     for k := range conf.Applications {
       if conf.Applications[k].Mode == "" {
         app := conf.Applications[k]
@@ -59,6 +63,9 @@ func NewConfig(path string) SetterConfig {
         app := conf.Applications[k]
         app.Comment_Prefix = "#"
         conf.Applications[k] = app
+      }
+      for f := range conf.Applications[k].Files {
+        conf.Applications[k].Files[f] = expandPath(conf.Applications[k].Files[f])
       }
     }
 
