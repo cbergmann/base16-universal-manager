@@ -23,6 +23,7 @@ type SetterConfig struct {
 type StetterAppConfig struct {
 	Enabled bool              `yaml:"enabled"`
 	Hook    string            `yaml:"hook"`
+	Hooks   []string          `yaml:"hooks"`
 	Mode    string            `yaml:"mode"`
 	Comment_Prefix  string            `yaml:"comment_prefix"`
 	Files   map[string]string `yaml:"files"`

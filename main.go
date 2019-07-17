@@ -213,6 +213,9 @@ func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
 		fmt.Println("Not running hook, DryRun enabled: ", appConf.Applications[templ.Name].Hook)
 	} else {
 		exe_cmd(appConf.Applications[templ.Name].Hook)
+    for k:= range(appConf.Applications[templ.Name].Hooks) {
+  		exe_cmd(appConf.Applications[templ.Name].Hooks[k])
+    }
 	}
 }
 
