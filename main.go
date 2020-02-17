@@ -7,15 +7,12 @@ import (
 	"bufio"
 	"path/filepath"
 	"strings"
-	"github.com/OpenPeeDeeP/xdg"
 	"github.com/hoisie/mustache"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // Configuration file
 var configFile string
-
-var xdgDirs = xdg.New("base16-universal-manager", "")
 
 //Flags
 var (
@@ -28,6 +25,7 @@ var (
 	clearTemplatesFlag    = kingpin.Flag("clear-template", "Delete local template caches").Bool()
 	configFileFlag        = kingpin.Flag("config", "Specify configuration file to use").Default(filepath.Join(xdgdir.Config.Path(),"base16-universal-manager/config.yaml")).String()
 	schemeFlag            = kingpin.Flag("scheme", "Override scheme from config file").Default("").String()
+  printConfigFlag    = kingpin.Flag("print-config", "Print current configuration").Bool()
 )
 
 //Configuration

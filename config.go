@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
-
 	"gopkg.in/yaml.v2"
 )
 
@@ -54,7 +52,7 @@ func NewConfig(path string) SetterConfig {
   conf.TemplatesCachePath = "cache/templates/"
   conf.DryRun = true
   conf.Colorscheme = "flat.yaml"
-  conf.Applications = map[string]StetterAppConfig{}
+  conf.Applications = map[string]SetterAppConfig{}
 
   file, err := ioutil.ReadFile(path)
 	if err != nil {
