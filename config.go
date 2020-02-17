@@ -2,25 +2,32 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+
+	"gopkg.in/yaml.v2"
 )
 
+var defaultSchemesMasterURL = "https://raw.githubusercontent.com/chriskempson/base16-schemes-source/master/list.yaml"
+var defaultTemplatesMasterURL = "https://raw.githubusercontent.com/chriskempson/base16-templates-source/master/list.yaml"
+
+// SetterConfig is the applicaton's configuration.
 type SetterConfig struct {
-	GithubToken        string                      `yaml:"GithubToken"`
-	SchemesMasterURL   string                      `yaml:"SchemesMasterURL"`
-	TemplatesMasterURL string                      `yaml:"TemplatesMasterURL"`
-	SchemesListFile    string                      `yaml:"SchemesListFile"`
-	TemplatesListFile  string                      `yaml:"TemplatesListFile"`
-	SchemesCachePath   string                      `yaml:"SchemesCachePath"`
-	TemplatesCachePath string                      `yaml:"TemplatesCachePath"`
-	DryRun             bool                        `yaml:"DryRun"`
-	Colorscheme        string                      `yaml:"Colorscheme"`
-	Applications       map[string]StetterAppConfig `yaml:"applications"`
+	GithubToken        string                     `yaml:"GithubToken"`
+	SchemesMasterURL   string                     `yaml:"SchemesMasterURL"`
+	TemplatesMasterURL string                     `yaml:"TemplatesMasterURL"`
+	DryRun             bool                       `yaml:"DryRun"`
+	Colorscheme        string                     `yaml:"Colorscheme"`
+	Applications       map[string]SetterAppConfig `yaml:"applications"`
+	SchemesCachePath   string
+	SchemesListFile    string
+	TemplatesCachePath string
+	TemplatesListFile  string
 }
 
-type StetterAppConfig struct {
+// SetterAppConfig is the configuration for a particular application being themed.
+type SetterAppConfig struct {
 	Enabled bool              `yaml:"enabled"`
 	Hook    string            `yaml:"hook"`
 	Hooks   []string          `yaml:"hooks"`
@@ -29,7 +36,13 @@ type StetterAppConfig struct {
 	Files   map[string]string `yaml:"files"`
 }
 
+// NewConfig parses the provided configuration file and returns the app configuration.
 func NewConfig(path string) SetterConfig {
+	if path == "" {
+		fmt.Fprintf(os.Stderr, "no config file found\n")
+		os.Exit(1)
+	}
+
 	var conf SetterConfig
 
   conf.GithubToken = ""
@@ -50,6 +63,14 @@ func NewConfig(path string) SetterConfig {
 	  check(err)
 	  err = yaml.Unmarshal((file), &conf)
 	  check(err)
+
+    if conf.SchemesMasterURL == "" {
+		  conf.SchemesMasterURL = defaultSchemesMasterURL
+    }
+	  if conf.TemplatesMasterURL == "" {
+      conf.TemplatesMasterURL = defaultTemplatesMasterURL
+    }
+
     conf.SchemesListFile = expandPath(conf.SchemesListFile)
     conf.TemplatesListFile = expandPath(conf.TemplatesListFile)
     conf.SchemesCachePath = expandPath(conf.SchemesCachePath)
@@ -73,6 +94,8 @@ func NewConfig(path string) SetterConfig {
   }
 	return conf
 }
+
+// Show prints the app configuration
 func (c SetterConfig) Show() {
 	fmt.Println("GithubToken: ", c.GithubToken)
 	fmt.Println("SchemesListFile: ", c.SchemesListFile)
@@ -81,17 +104,13 @@ func (c SetterConfig) Show() {
 	fmt.Println("TemplatesCachePath: ", c.TemplatesCachePath)
 	fmt.Println("DryRun: ", c.DryRun)
 
-	for k, v := range c.Applications {
-		fmt.Println("  App: ", k)
-		fmt.Println("    Enabled: ", v.Enabled)
-    fmt.Println("    Mode: ", v.Mode)
-		fmt.Println("    Hook: ", v.Hook)
-		fmt.Println("    Comment_Prefix: ", v.Comment_Prefix)
-		for k1, v1 := range v.Files {
-			fmt.Println("      ", k1, "  ", v1)
+	for app, appConfig := range c.Applications {
+		fmt.Println("  App: ", app)
+		fmt.Println("    Enabled: ", appConfig.Enabled)
+		fmt.Println("    Hook: ", appConfig.Hook)
+		fmt.Println("    Comment_Prefix: ", appConfig.Comment_Prefix)
+		for k, v := range appConfig.Files {
+			fmt.Println("      ", k, "  ", v)
 		}
 	}
-}
-
-type Application1 struct {
 }

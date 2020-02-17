@@ -2,17 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/hoisie/mustache"
-	"gopkg.in/alecthomas/kingpin.v2"
   "go4.org/xdgdir"
 	"os"
 	"bufio"
 	"path/filepath"
 	"strings"
+	"github.com/OpenPeeDeeP/xdg"
+	"github.com/hoisie/mustache"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // Configuration file
 var configFile string
+
+var xdgDirs = xdg.New("base16-universal-manager", "")
 
 //Flags
 var (
@@ -31,26 +34,50 @@ var (
 var appConf SetterConfig
 
 func main() {
-
-	//Pase Flags
-	kingpin.Version("1.0.0")
+	//Parse Flags
+	kingpin.Version("0.2.1")
 	kingpin.Parse()
 
 	appConf = NewConfig(*configFileFlag)
 
-	// appConf.Show()
-
-  if *clearSchemesFlag {
-    fmt.Println("[CONFIG]: Clearing schemes cache")
-    os.RemoveAll(appConf.SchemesCachePath)
+	if *printConfigFlag {
+		appConf.Show()
 	}
 
-  if *clearTemplatesFlag {
-    fmt.Println("[CONFIG]: Clearing templates cache")
-    os.RemoveAll(appConf.TemplatesCachePath)
+	if *clearListFlag {
+		err := os.Remove(appConf.SchemesListFile)
+		if err == nil {
+			fmt.Printf("Deleted cached colorscheme list %s\n", appConf.SchemesListFile)
+		} else {
+			fmt.Fprintf(os.Stderr, "Error deleting cached colorscheme list: %v\n", err)
+		}
+		err = os.Remove(appConf.TemplatesListFile)
+		if err == nil {
+			fmt.Printf("Deleted cached template list %s\n", appConf.TemplatesListFile)
+		} else {
+			fmt.Fprintf(os.Stderr, "Error deleting cached template list: %v\n", err)
+		}
 	}
 
-	//Create cache paths, if missing
+	if *clearSchemesFlag {
+		err := os.RemoveAll(appConf.SchemesCachePath)
+		if err == nil {
+			fmt.Printf("Deleted cached colorscheme list %s\n", appConf.SchemesCachePath)
+		} else {
+			fmt.Fprintf(os.Stderr, "Error deleting cached colorschemes: %v\n", err)
+		}
+	}
+
+	if *clearTemplatesFlag {
+		err := os.RemoveAll(appConf.TemplatesCachePath)
+		if err == nil {
+			fmt.Printf("Deleted cached templates %s\n", appConf.TemplatesCachePath)
+		} else {
+			fmt.Fprintf(os.Stderr, "Error deleting cached templates: %v\n", err)
+		}
+	}
+
+	// Create cache paths, if missing
 	os.MkdirAll(appConf.SchemesCachePath, os.ModePerm)
 	os.MkdirAll(appConf.TemplatesCachePath, os.ModePerm)
 
@@ -96,22 +123,22 @@ func main() {
 	scheme := schemeList.Find(schemename)
 	fmt.Println("[CONFIG]: Selected scheme: ", scheme.Name)
 
-  schemeList = LoadBase16ColorschemeList()
-	templateList = LoadBase16TemplateList()
+	templateEnabled := false
+	for app, appConfig := range appConf.Applications {
+		if appConfig.Enabled {
+			Base16Render(templateList.Find(app), scheme)
+			templateEnabled = true
+		}
+	}
 
-	for k := range appConf.Applications {
-    if ! appConf.Applications[k].Enabled {
-      continue
-    }
-
-		templ := templateList.Find(k)
-
-		Base16Render(templ, scheme)
-
+	if !templateEnabled {
+		fmt.Println("No templates enabled")
 	}
 
 }
 
+// Base16Render takes an application-specific template and renders a config file
+// implementing the provided colorscheme.
 func Base16Render(templ Base16Template, scheme Base16Colorscheme) {
   fmt.Println("[RENDER]: Rendering template \"" + templ.Name + "\"")
 
